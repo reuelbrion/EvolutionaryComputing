@@ -5,7 +5,7 @@ import org.vu.contest.ContestEvaluation;
 
 import java.util.Random;
 import java.util.Properties;
-
+//test
 public class EASubmission implements ContestSubmission
 {
 	private Random rnd_;
