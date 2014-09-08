@@ -52,8 +52,10 @@ public class EASubmission implements ContestSubmission
 			// Select parents
 			// Apply variation operators and get children
 		//	double child[] = ...
-	//		Double fitness = evaluation_.evaluate(child);
+			double[] darray = {5d,2d,3d,4d,5d,-1d,-2d,-3d,4d,0d}; 
+	  		Double fitness = (Double)evaluation_.evaluate(darray);
 			evals++;
+			System.out.println(fitness + " - ");
 			// Select survivors
 		}
 	}
