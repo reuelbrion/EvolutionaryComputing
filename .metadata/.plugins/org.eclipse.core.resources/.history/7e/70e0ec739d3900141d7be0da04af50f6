@@ -52,7 +52,7 @@ public class SubmissionTemplateKladReuel implements ContestSubmission
 		//set random values for starting array
 		double[][] population = initPopulation(); 
 		
-		while(evals<evaluations_limit_/10)
+		while(evals<evaluations_limit_-10)
 		{
 			// Select parents
 			int[] bestParents = {0,1};

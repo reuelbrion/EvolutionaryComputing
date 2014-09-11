@@ -52,7 +52,7 @@ public class SubmissionTemplateKladReuel implements ContestSubmission
 		//set random values for starting array
 		double[][] population = initPopulation(); 
 		
-		while(evals<evaluations_limit_/10)
+		while(evals<evaluations_limit_)
 		{
 			// Select parents
 			int[] bestParents = {0,1};
@@ -63,17 +63,8 @@ public class SubmissionTemplateKladReuel implements ContestSubmission
 				currentFitness = (Double)evaluation_.evaluate(population[i]);
 				if(currentFitness > parentFitness[0])
 				{
-					if(parentFitness[0] > parentFitness[1])
-					{
-						bestParents[1] = i;
-						parentFitness[1] = currentFitness;
-					}
-					else
-					{
-						bestParents[0] = i;
-						parentFitness[0] = currentFitness;
-					}
-				
+					bestParents[0] = i;
+					parentFitness[0] = currentFitness;
 				}
 				else if(currentFitness  > parentFitness[1])
 				{
@@ -82,11 +73,15 @@ public class SubmissionTemplateKladReuel implements ContestSubmission
 				}
 			}	
 			
-			System.out.println("p1 fitness: " + parentFitness[0] + " p2 fitness:  " + parentFitness[1] + " evals: " + evals);
+			System.out.println(parentFitness[0] + " - " + parentFitness[1]);
 			// Apply variation operators and get children
 			population = createPopulationFromParents(population[bestParents[0]], population[bestParents[1]]);
 			
+			//	double child[] = ...
+			
 			evals++;
+			
+			// Select survivors
 		}
 	}
 	
@@ -114,7 +109,7 @@ public class SubmissionTemplateKladReuel implements ContestSubmission
 				child[h + base] = parent2[h + base];
 			}
 			
-			output[i] = mutateChild(child);
+			output[i] = child;//mutateChild(child);
 		}		
 		return output;
 	}
