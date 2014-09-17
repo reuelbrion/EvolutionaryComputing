@@ -7,7 +7,7 @@ public class ec1 {
 	 */
 	public static void main(String[] args) 
 	{
-		SubmissionTemplateKladReuel sub = new SubmissionTemplateKladReuel();
+		player17 sub = new player17();
 		sub.setEvaluation(new SphereEvaluation());
 		sub.run();
 	}
