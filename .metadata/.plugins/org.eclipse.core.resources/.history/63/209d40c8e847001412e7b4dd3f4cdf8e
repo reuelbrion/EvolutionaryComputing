@@ -61,7 +61,7 @@ public class player17 implements ContestSubmission
 		while(evals<evaluations_limit_/POPULATION_SIZE)
 		{
 			makeNewPopulation();
-			System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(99).fitness + " evals: " + evals);
+			//System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(99).fitness + " evals: " + evals);
 			evals++;
 		}
 	}
@@ -86,7 +86,6 @@ public class player17 implements ContestSubmission
 			}
 			Individual mutant = child.clone();
 			mutateChild(mutant);
-			mutant.fitness = (Double)evaluation_.evaluate(mutant.genome);
 			addToPopulationSorted(mutant, tempPopulation);
 		}
 		population = tempPopulation;

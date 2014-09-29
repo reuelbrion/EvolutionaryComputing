@@ -11,7 +11,7 @@ public class player17 implements ContestSubmission
 {
 	final static int POPULATION_SIZE = 100; //individuals
 	final static int PARENTS_SURVIVE = 20; //number of parents that survive into the next generation
-	final static int NUMBER_OF_MUTATIONS = 1;
+	final static int NUMBER_OF_MUTATIONS = 2;
 	final static boolean ONLY_MUTANTS = false; //wel of niet alleen mutanten als kinderen toeveogen aan nieuwe gen
 	
 	ArrayList<Individual> population;
@@ -86,7 +86,6 @@ public class player17 implements ContestSubmission
 			}
 			Individual mutant = child.clone();
 			mutateChild(mutant);
-			mutant.fitness = (Double)evaluation_.evaluate(mutant.genome);
 			addToPopulationSorted(mutant, tempPopulation);
 		}
 		population = tempPopulation;

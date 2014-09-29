@@ -86,7 +86,6 @@ public class player17 implements ContestSubmission
 			}
 			Individual mutant = child.clone();
 			mutateChild(mutant);
-			mutant.fitness = (Double)evaluation_.evaluate(mutant.genome);
 			addToPopulationSorted(mutant, tempPopulation);
 		}
 		population = tempPopulation;
