@@ -3,18 +3,26 @@
 import org.vu.contest.ContestSubmission;
 import org.vu.contest.ContestEvaluation;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Properties;
 //test
 public class player17 implements ContestSubmission
 {
+	final static int POPULATION_SIZE = 100; //individuals
+	final static int PARENTS_SURVIVE = 20; //number of parents that survive into the next generation
+	final static int NUMBER_OF_MUTATIONS = 1;
+	final static boolean ONLY_MUTANTS = false; //wel of niet alleen mutanten als kinderen toeveogen aan nieuwe gen
+	
+	ArrayList<Individual> population;
 	private Random rnd_;
 	private ContestEvaluation evaluation_;
 	private int evaluations_limit_;
-
+	
 	public player17()
 	{
 		rnd_ = new Random();
+		population = new ArrayList<Individual>();
 	}
 
 	public void setSeed(long seed)
@@ -46,111 +54,123 @@ public class player17 implements ContestSubmission
 	public void run()
 	{
 		// Run your algorithm here
-
-		int evals = 0;
-		
 		//set random values for starting array
-		double[][] population = initPopulation(); 
+		int evals = 1;
+		initPopulation(); 
 		
-		while(evals<evaluations_limit_/10)
+		while(evals<evaluations_limit_/POPULATION_SIZE)
 		{
-			// Select parents
-			int[] bestParents = {0,1};
-			Double[] parentFitness = {(Double)evaluation_.evaluate(population[0]), (Double)evaluation_.evaluate(population[1])};
-			Double currentFitness;
-			for (int i = 2; i < population.length; i++)
-			{
-				currentFitness = (Double)evaluation_.evaluate(population[i]);
-				if(currentFitness > parentFitness[0])
-				{
-					if(parentFitness[0] > parentFitness[1])
-					{
-						bestParents[1] = i;
-						parentFitness[1] = currentFitness;
-					}
-					else
-					{
-						bestParents[0] = i;
-						parentFitness[0] = currentFitness;
-					}
-				
-				}
-				else if(currentFitness  > parentFitness[1])
-				{
-					bestParents[1] = i;
-					parentFitness[1] = currentFitness;
-				}
-			}	
-			
-			//System.out.println("p1 fitness: " + parentFitness[0] + " p2 fitness:  " + parentFitness[1] + " evals: " + evals);
-			// Apply variation operators and get children
-			population = createPopulationFromParents(population[bestParents[0]], population[bestParents[1]]);
-			
+			makeNewPopulation();
+			//System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(99).fitness + " evals: " + evals);
 			evals++;
 		}
 	}
 	
-	private double[][] createPopulationFromParents(double[] parent1, double[] parent2) 
-	{
-		double[][] output = new double[10][10];
-		Random rand = new Random();
-		int randInt1, base;
-		double[] child;
-		
-		for (int i = 0; i < output.length; i++)
-		{
-			child = new double[10];
-			randInt1 = rand.nextInt(6);
-			base = 0;
-			
-			for (int j = 0; j < randInt1; j++)
-			{
-				child[j] = parent1[j];
-				base++;
-			}
-			for (int h = 0; h < randInt1; h++)
-			{
-				child[h + base] = parent2[h + base];
-			}
-			
-			output[i] = mutateChild(child);
-		}		
-		return output;
-	}
-
-	private double[] mutateChild(double[] child)
+	void makeNewPopulation()
 	{
 		Random rand = new Random();
-		int mutatePosition = rand.nextInt(10);
-		
-		child[mutatePosition] = ((rand.nextDouble() * 10d) - 5d);
-		return child;
-	}
-
-	public double[][] initPopulation()
-	{
-		double[][] output = new double[10][10];
-		for (int i = 0; i < output.length; i++)
+		ArrayList<Individual> tempPopulation = new ArrayList<Individual>();
+		for(int i = 0; i < PARENTS_SURVIVE; i++)
 		{
-			output[i] = makeRandomDoubleArray();
-		}		
-		return output;
+			tempPopulation.add(i, population.get(i));
+		}
+		while(tempPopulation.size() < POPULATION_SIZE)
+		{			
+			Individual parent1 = population.get(rand.nextInt(PARENTS_SURVIVE));
+			Individual parent2 = population.get(rand.nextInt(PARENTS_SURVIVE));
+			Individual child = crossoverParents(parent1, parent2);
+			if(!ONLY_MUTANTS)
+			{
+				child.fitness = (Double)evaluation_.evaluate(child.genome);
+				addToPopulationSorted(child, tempPopulation);
+			}
+			Individual mutant = child.clone();
+			mutateChild(mutant);
+			addToPopulationSorted(mutant, tempPopulation);
+		}
+		population = tempPopulation;
 	}
 	
-	public double[] makeRandomDoubleArray()
+	private Individual crossoverParents(Individual parent1, Individual parent2)
 	{
-		double randDub;
 		Random rand = new Random();
-		double[] output = new double[10];
-		for (int i = 0; i < output.length; i++)
+		Individual child = new Individual();
+		for(int i = 0; i < parent1.genome.length; i++)
 		{
-			randDub = rand.nextDouble();
-			randDub *= 10d;
-			randDub -= 5d;
-			output[i] = randDub;
-		}		
-		
+			if (rand.nextBoolean())
+			{
+				child.genome[i] = parent1.genome[i];
+			}
+			else
+			{
+				child.genome[i] = parent2.genome[i];
+			}
+		}
+		return child;
+	}
+	
+	private void mutateChild(Individual child)
+	{
+		Random rand = new Random();
+		int[] mutatePosition = createMutatePositionsArray(NUMBER_OF_MUTATIONS);	
+		for (int i = 0; i < NUMBER_OF_MUTATIONS; i++)
+		{
+			child.genome[mutatePosition[i]] = ((rand.nextDouble() * 10d) - 5d);
+		}
+	}
+
+	private int[] createMutatePositionsArray(int size) 
+	{
+		Random rand = new Random();
+		int[] output = new int[size];
+		output[0] = rand.nextInt(10);
+		for (int i = 1; i<size; i++)
+		{
+			int newPosition = rand.nextInt(10);
+			while(arrayContains(output, newPosition, i))
+			{
+				newPosition = rand.nextInt(10);
+			}
+			output[i] = newPosition;
+		}
 		return output;
+	}
+
+	private boolean arrayContains(int[] intArray, int check, int steps) 
+	{
+		for (int i = 0; i < steps; i++)
+		{
+			if (intArray[i] == check)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void addToPopulationSorted(Individual input, ArrayList<Individual> pop)
+	{
+		int index = 0;
+		while(index < pop.size() && population.get(index).fitness > input.fitness)
+		{
+			index++;
+		}
+		pop.add(index, input);
+	}
+	
+	public void initPopulation()
+	{
+		Individual ind = new Individual();
+		ind.initializeRandom();
+		ind.fitness = (Double)evaluation_.evaluate(ind.genome);
+		population.add(ind);
+		while(population.size() < POPULATION_SIZE)
+		{
+			ind = new Individual();
+			ind.initializeRandom();
+			ind.fitness = (Double)evaluation_.evaluate(ind.genome);
+			addToPopulationSorted(ind, population);
+		}
 	}
 }
 

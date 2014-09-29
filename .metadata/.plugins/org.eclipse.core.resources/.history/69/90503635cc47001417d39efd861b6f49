@@ -1,0 +1,13 @@
+import java.util.ArrayList;
+
+public class Individual 
+{
+	double[] genome;
+	double fitness;
+	
+	Individual()
+	{
+		genome = new double[10];
+		fitness = Double.MIN_VALUE;
+	}
+}
