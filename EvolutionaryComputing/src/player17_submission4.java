@@ -1,6 +1,4 @@
-//function 1 score:  	9.461196398510749
-//function 2 score:		0.06591987679360047
-//function 3 score:		3.037529767619179
+
 
 import org.vu.contest.ContestSubmission;
 import org.vu.contest.ContestEvaluation;
@@ -9,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Properties;
 //test
-public class player17 implements ContestSubmission
+public class player17_submission4 implements ContestSubmission
 {
 	final static int POPULATION_SIZE = 100; //individuals
 	final static int PARENTS_SURVIVE = 20; //number of parents that survive into the next generation
@@ -21,7 +19,7 @@ public class player17 implements ContestSubmission
 	private ContestEvaluation evaluation_;
 	private int evaluations_limit_;
 	
-	public player17()
+	public player17_submission4()
 	{
 		rnd_ = new Random();
 		population = new ArrayList<Individual>();
@@ -118,22 +116,7 @@ public class player17 implements ContestSubmission
 		int[] mutatePosition = createMutatePositionsArray(NUMBER_OF_MUTATIONS);	
 		for (int i = 0; i < NUMBER_OF_MUTATIONS; i++)
 		{
-			double oldValue = child.genome[mutatePosition[i]];
-			double mutation = rand.nextDouble();
-			if(rand.nextBoolean())
-			{
-				mutation *= -1d;
-			}
-			mutation = oldValue + mutation;
-			if(mutation > 5d)
-			{
-				mutation = 5d;
-			}
-			else if(mutation < -5d)
-			{
-				mutation = -5d;
-			}
-			child.genome[mutatePosition[i]] = mutation;
+			child.genome[mutatePosition[i]] = ((rand.nextDouble() * 10d) - 5d);
 		}
 	}
 

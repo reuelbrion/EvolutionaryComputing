@@ -118,22 +118,7 @@ public class player17 implements ContestSubmission
 		int[] mutatePosition = createMutatePositionsArray(NUMBER_OF_MUTATIONS);	
 		for (int i = 0; i < NUMBER_OF_MUTATIONS; i++)
 		{
-			double oldValue = child.genome[mutatePosition[i]];
-			double mutation = rand.nextDouble();
-			if(rand.nextBoolean())
-			{
-				mutation *= -1d;
-			}
-			mutation = oldValue + mutation;
-			if(mutation > 5d)
-			{
-				mutation = 5d;
-			}
-			else if(mutation < -5d)
-			{
-				mutation = -5d;
-			}
-			child.genome[mutatePosition[i]] = mutation;
+			child.genome[mutatePosition[i]] = ((rand.nextDouble() * 10d) - 5d);
 		}
 	}
 

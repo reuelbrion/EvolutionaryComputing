@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Properties;
 //test
-public class player17 implements ContestSubmission
+public class player17_submission5 implements ContestSubmission
 {
 	final static int POPULATION_SIZE = 100; //individuals
 	final static int PARENTS_SURVIVE = 20; //number of parents that survive into the next generation
@@ -21,7 +21,7 @@ public class player17 implements ContestSubmission
 	private ContestEvaluation evaluation_;
 	private int evaluations_limit_;
 	
-	public player17()
+	public player17_submission5()
 	{
 		rnd_ = new Random();
 		population = new ArrayList<Individual>();

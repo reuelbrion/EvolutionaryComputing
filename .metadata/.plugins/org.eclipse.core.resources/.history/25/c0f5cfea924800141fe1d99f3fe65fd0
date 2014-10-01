@@ -1,3 +1,4 @@
+package old;
 
 
 import org.vu.contest.ContestSubmission;
@@ -6,20 +7,15 @@ import org.vu.contest.ContestEvaluation;
 import java.util.Random;
 import java.util.Properties;
 //test
-public class CopyOfplayer17 implements ContestSubmission
+public class player17_submission1 implements ContestSubmission
 {
-	final static int POPULATION_SIZE = 10;
-	
 	private Random rnd_;
 	private ContestEvaluation evaluation_;
 	private int evaluations_limit_;
 
-	private double[] currentScore;
-	
-	public CopyOfplayer17()
+	public player17_submission1()
 	{
 		rnd_ = new Random();
-		currentScore = new double[2];
 	}
 
 	public void setSeed(long seed)
@@ -57,7 +53,7 @@ public class CopyOfplayer17 implements ContestSubmission
 		//set random values for starting array
 		double[][] population = initPopulation(); 
 		
-		while(evals<evaluations_limit_/population.length)
+		while(evals<evaluations_limit_/10)
 		{
 			// Select parents
 			int[] bestParents = {0,1};
@@ -87,120 +83,54 @@ public class CopyOfplayer17 implements ContestSubmission
 				}
 			}	
 			
-			System.out.println("p1 fitness: " + parentFitness[0] + " p2 fitness:  " + parentFitness[1] + " evals: " + evals);
-			//System.out.println("p1 = " + population[bestParents[0]][0] + " p2 =  " + population[bestParents[1]][0]);
-			currentScore[0] = parentFitness[0];
-			currentScore[1] = parentFitness[1];
+			//System.out.println("p1 fitness: " + parentFitness[0] + " p2 fitness:  " + parentFitness[1] + " evals: " + evals);
+			// Apply variation operators and get children
 			population = createPopulationFromParents(population[bestParents[0]], population[bestParents[1]]);
 			
 			evals++;
 		}
 	}
 	
-	private void crossoverParents(double[] parent1, double[] parent2)
-	{
-		int maxNumberOfCrossoverPoints = 2; //might want to try different values
-		Random rand = new Random();
-		int base = 0;
-		boolean flip = true;
-		for(int i = 0; i<maxNumberOfCrossoverPoints; i++)
-		{
-			int nextCrossoverPoint = rand.nextInt(10-base)+base;
-			if(nextCrossoverPoint >= 10)
-			{
-				break;
-			}
-			if (flip)
-			{
-				for(int j = base; j<nextCrossoverPoint; j++)
-				{
-					double temp = parent1[j];
-					parent1[j] = parent2[j];
-					parent2[j] = temp;
-				}
-				flip = !flip;
-			}
-			else
-			{
-				flip = !flip;
-			}
-			
-			base = nextCrossoverPoint;
-		}
-	}
-	
 	private double[][] createPopulationFromParents(double[] parent1, double[] parent2) 
 	{
-		double[][] output = new double[10][POPULATION_SIZE];
+		double[][] output = new double[10][10];
 		Random rand = new Random();
+		int randInt1, base;
+		double[] child;
+		
 		for (int i = 0; i < output.length; i++)
 		{
-			crossoverParents(parent1, parent2);
-			if(rand.nextBoolean())
+			child = new double[10];
+			randInt1 = rand.nextInt(6);
+			base = 0;
+			
+			for (int j = 0; j < randInt1; j++)
 			{
-				output[i] = mutateChild(parent1);
+				child[j] = parent1[j];
+				base++;
 			}
-			else
+			for (int h = 0; h < randInt1; h++)
 			{
-				output[i] = mutateChild(parent2);
+				child[h + base] = parent2[h + base];
 			}
+			
+			output[i] = mutateChild(child);
 		}		
 		return output;
 	}
 
 	private double[] mutateChild(double[] child)
 	{
-		int numberOfMutations = 3;
-		double currentScoreDub = currentScore[0] + currentScore[1];
-		if (currentScoreDub > 2d && currentScoreDub <= 10d)
-		{
-			numberOfMutations = 2;
-		}
-		else if (currentScoreDub > 10d)
-		{
-			numberOfMutations = 1;
-		}
 		Random rand = new Random();
-		int[] mutatePosition = createMutatePositionsArray(numberOfMutations);	
-		for (int i = 0; i < numberOfMutations; i++)
-		{
-			child[mutatePosition[i]] = ((rand.nextDouble() * 10d) - 5d);
-		}
+		int mutatePosition = rand.nextInt(10);
+		
+		child[mutatePosition] = ((rand.nextDouble() * 10d) - 5d);
 		return child;
-	}
-
-	private int[] createMutatePositionsArray(int size) 
-	{
-		Random rand = new Random();
-		int[] output = new int[size];
-		output[0] = rand.nextInt(9);
-		for (int i = 1; i<size; i++)
-		{
-			int newPosition = rand.nextInt(9);
-			while(arrayContains(output, newPosition, i))
-			{
-				newPosition = rand.nextInt(9);
-			}
-			output[i] = newPosition;
-		}
-		return output;
-	}
-
-	private boolean arrayContains(int[] intArray, int check, int steps) 
-	{
-		for (int i = 0; i < steps; i++)
-		{
-			if (intArray[i] == check)
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public double[][] initPopulation()
 	{
-		double[][] output = new double[10][POPULATION_SIZE]; //proberen te varieren?
+		double[][] output = new double[10][10];
 		for (int i = 0; i < output.length; i++)
 		{
 			output[i] = makeRandomDoubleArray();
