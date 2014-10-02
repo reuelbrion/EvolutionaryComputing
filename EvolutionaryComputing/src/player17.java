@@ -1,30 +1,46 @@
-//function 1 score:  	9.461196398510749
-//function 2 score:		0.06591987679360047
-//function 3 score:		3.037529767619179
+//function 1 score:  	
+//function 2 score:		
+//function 3 score:		
 
 import org.vu.contest.ContestSubmission;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.vu.contest.ContestEvaluation;
 
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Properties;
-//test
-public class player17 implements ContestSubmission
+
+public class player17 implements ContestSubmission 
 {
-	final static int POPULATION_SIZE = 100; //individuals
-	final static int PARENTS_SURVIVE = 20; //number of parents that survive into the next generation
+	final static int POPULATION_SIZE = 20; //individuals, moet altijd deelbaar door 2 zijn
+	final static int NUMBER_OF_POPULATIONS = 10; //wordt nog niet gebruikt
+	final static int PARENTS_SURVIVE = 10; //number of parents that survive into the next generation
 	final static int NUMBER_OF_MUTATIONS = 1;
 	final static boolean ONLY_MUTANTS = false; //wel of niet alleen mutanten als kinderen toeveogen aan nieuwe gen
+	final static int RANDOM_MUTATION_CHANCE = 5; //procent kans dat een gen totaal random muteert
 	
 	ArrayList<Individual> population;
 	private Random rnd_;
 	private ContestEvaluation evaluation_;
 	private int evaluations_limit_;
+	JFreeChart chart;
+	XYSeriesCollection dataset;
+	int column;
+	
 	
 	public player17()
 	{
 		rnd_ = new Random();
 		population = new ArrayList<Individual>();
+		dataset = new XYSeriesCollection();
+		column = 0;
 	}
 
 	public void setSeed(long seed)
@@ -44,7 +60,7 @@ public class player17 implements ContestSubmission
 		boolean isMultimodal = Boolean.parseBoolean(props.getProperty("Multimodal"));
 		boolean hasStructure = Boolean.parseBoolean(props.getProperty("GlobalStructure"));
 		boolean isSeparable = Boolean.parseBoolean(props.getProperty("Separable"));
-
+		
 		// Change settings(?)
 		if(isMultimodal){
 			// Do sth
@@ -63,20 +79,70 @@ public class player17 implements ContestSubmission
 		while(evals<evaluations_limit_/POPULATION_SIZE)
 		{
 			makeNewPopulation();
-			System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(99).fitness + " evals: " + evals);
+			Iterator<Individual> iterator = population.iterator();
+			XYSeries series = new XYSeries(""+column);
+			while(iterator.hasNext())
+			{
+				double fitness = iterator.next().fitness.doubleValue();
+				series.add(column, fitness);
+			}
+			column++;
+			dataset.addSeries(series);
+			System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(19).fitness + " evals: " + evals);
 			evals++;
 		}
+
+		//maak een plot op scherm, dit uitzetten bij inleveren
+		chart = ChartFactory.createScatterPlot(
+	            "Line Chart 1",       // chart title
+	            "Evals",                    // domain axis label
+	            "Fitness",                   // range axis label
+	            dataset,                   // data
+	            PlotOrientation.VERTICAL,  // orientation
+	            false,                      // include legend
+	            true,                      // tooltips
+	            false                      // urls
+	        );
+		chart.setBackgroundPaint(Color.white);
+		ChartFrame frame = new ChartFrame("First", chart);
+        frame.pack();
+        frame.setVisible(true);
 	}
 	
 	void makeNewPopulation()
 	{
 		Random rand = new Random();
-		ArrayList<Individual> tempPopulation = new ArrayList<Individual>();
-		for(int i = 0; i < PARENTS_SURVIVE; i++)
+		ArrayList<Individual> tempPopulation1 = new ArrayList<Individual>();
+		ArrayList<Individual> tempPopulation2 = new ArrayList<Individual>();
+		//split pop in 2
+		while(tempPopulation1.size()<POPULATION_SIZE/2)
 		{
-			tempPopulation.add(i, population.get(i));
+			tempPopulation1.add(population.remove(rand.nextInt(population.size())));
 		}
-		while(tempPopulation.size() < POPULATION_SIZE)
+		while(tempPopulation2.size()<POPULATION_SIZE/2)
+		{
+			tempPopulation2.add(population.remove(rand.nextInt(population.size())));
+		}
+		//BATTLE!
+
+		while(tempPopulation1.size() > 0) 
+		{
+			Individual parent1 = tempPopulation1.remove(rand.nextInt(tempPopulation1.size()));
+			Individual parent2 = tempPopulation2.remove(rand.nextInt(tempPopulation2.size()));
+			if (parent1.fitness > parent2.fitness)
+			{
+				addToPopulationSorted(parent1, population);
+			}
+			else
+			{
+				addToPopulationSorted(parent2, population);
+			}
+		}
+		while(population.size() > PARENTS_SURVIVE)
+		{
+			population.remove(population.size()-1);
+		}
+		while(population.size() < POPULATION_SIZE)
 		{			
 			Individual parent1 = population.get(rand.nextInt(PARENTS_SURVIVE));
 			Individual parent2 = population.get(rand.nextInt(PARENTS_SURVIVE));
@@ -84,14 +150,13 @@ public class player17 implements ContestSubmission
 			if(!ONLY_MUTANTS)
 			{
 				child.fitness = (Double)evaluation_.evaluate(child.genome);
-				addToPopulationSorted(child, tempPopulation);
+				addToPopulationSorted(child, population);
 			}
 			Individual mutant = child.clone();
 			mutateChild(mutant);
 			mutant.fitness = (Double)evaluation_.evaluate(mutant.genome);
-			addToPopulationSorted(mutant, tempPopulation);
+			addToPopulationSorted(mutant, population);
 		}
-		population = tempPopulation;
 	}
 	
 	private Individual crossoverParents(Individual parent1, Individual parent2)
@@ -134,6 +199,11 @@ public class player17 implements ContestSubmission
 				mutation = -5d;
 			}
 			child.genome[mutatePosition[i]] = mutation;
+			//small change of totaly random mutation
+			if(rand.nextInt(100) < RANDOM_MUTATION_CHANCE)
+			{
+				child.genome[mutatePosition[i]] = ((rand.nextDouble() * 10d) - 5d);
+			}
 		}
 	}
 

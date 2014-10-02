@@ -1,4 +1,6 @@
-
+//function 1 score:  	9.461196398510749
+//function 2 score:		0.06591987679360047
+//function 3 score:		3.037529767619179
 
 import org.vu.contest.ContestSubmission;
 import org.vu.contest.ContestEvaluation;
