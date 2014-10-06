@@ -90,7 +90,7 @@ public class player17 implements ContestSubmission
 			}
 			column++;
 			dataset.addSeries(series);
-			System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(19).fitness + " evals: " + evals + " individual vatriance: " + computeIndividualVariance());
+			//System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(19).fitness + " evals: " + evals + " individual vatriance: " + computeIndividualVariance());
 			if( computeIndividualVariance() < VARIANCE_TRESHOLD)
 			{
 				addRandomsToPopulation(RANDOMS_ADDED);
@@ -99,7 +99,7 @@ public class player17 implements ContestSubmission
 		}
 
 		//maak een plot op scherm, dit uitzetten bij inleveren
-		chart = ChartFactory.createScatterPlot(
+		/*chart = ChartFactory.createScatterPlot(
 	            "Line Chart 1",       // chart title
 	            "Evals",                    // domain axis label
 	            "Fitness",                   // range axis label
@@ -113,7 +113,7 @@ public class player17 implements ContestSubmission
 		ChartFrame frame = new ChartFrame("First", chart);
         frame.pack();
         frame.setVisible(true);
-		 
+		 */
 	}
 	
 	private void addRandomsToPopulation(double randomsAdded) 

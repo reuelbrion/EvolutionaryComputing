@@ -25,7 +25,7 @@ public class player17 implements ContestSubmission
 	final static int NUMBER_OF_MUTATIONS = 1;
 	final static boolean ONLY_MUTANTS = false; //wel of niet alleen mutanten als kinderen toeveogen aan nieuwe gen
 	final static int RANDOM_MUTATION_CHANCE = 5; //procent kans dat een gen totaal random muteert
-	final static int RANDOMS_ADDED = 11; //aantal individuen dat random wordt vervangen bij te lage variance 
+	final static int RANDOMS_ADDED = 18; //aantal individuen dat random wordt vervangen bij te lage variance 
 	final static double VARIANCE_TRESHOLD = 5d; //waarde van variance in fitness waarbij individuen worden vervangen door randoms
 	
 	ArrayList<Individual> population;
@@ -90,8 +90,8 @@ public class player17 implements ContestSubmission
 			}
 			column++;
 			dataset.addSeries(series);
-			System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(19).fitness + " evals: " + evals + " individual vatriance: " + computeIndividualVariance());
-			if( computeIndividualVariance() < VARIANCE_TRESHOLD)
+			System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(19).fitness + " evals: " + evals + " fitness vatriance: " + computeFitnessVariance());
+			if(computeFitnessVariance() < VARIANCE_TRESHOLD)
 			{
 				addRandomsToPopulation(RANDOMS_ADDED);
 			}
@@ -113,7 +113,7 @@ public class player17 implements ContestSubmission
 		ChartFrame frame = new ChartFrame("First", chart);
         frame.pack();
         frame.setVisible(true);
-		 
+
 	}
 	
 	private void addRandomsToPopulation(double randomsAdded) 
@@ -153,47 +153,6 @@ public class player17 implements ContestSubmission
 			output += (mean-fitness) * (mean-fitness);
 		}
 		return output/numberOfIndividuals;
-	}
-	
-	double computeIndividualVariance() //todo
-	{
-		double[] meanIndividual = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		double[] temp =  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		double numberOfIndividuals = 0;
-		Iterator<Individual> iterator = population.iterator();
-		while(iterator.hasNext())
-		{
-			Individual ind = iterator.next();
-			for(int i = 0; i < 10; i++)
-			{
-				meanIndividual[i] += ind.genome[i];
-			}
-			numberOfIndividuals++;
-		}
-		for(int i = 0; i < 10; i++) //get mean
-		{
-			meanIndividual[i] /= numberOfIndividuals;
-		}
-		
-		iterator = population.iterator();
-		while(iterator.hasNext())
-		{
-			Individual ind = iterator.next();
-			for(int i = 0; i < 10; i++)
-			{
-				temp[i] += (meanIndividual[i]-ind.genome[i]) * (meanIndividual[i]-ind.genome[i]);
-			}
-		}
-		for(int i = 0; i < 10; i++)
-		{
-			temp[i] /= numberOfIndividuals;
-		}
-		double output = 0;
-		for(int i = 0; i < 10; i++)
-		{
-			output += temp[i];
-		}		
-		return output;
 	}
 	
 	void makeNewPopulation()

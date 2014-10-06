@@ -90,8 +90,8 @@ public class player17 implements ContestSubmission
 			}
 			column++;
 			dataset.addSeries(series);
-			System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(19).fitness + " evals: " + evals + " individual vatriance: " + computeIndividualVariance());
-			if( computeIndividualVariance() < VARIANCE_TRESHOLD)
+			System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(19).fitness + " evals: " + evals + " fitness vatriance: " + computeFitnessVariance());
+			if(computeFitnessVariance() < VARIANCE_TRESHOLD)
 			{
 				addRandomsToPopulation(RANDOMS_ADDED);
 			}
@@ -113,7 +113,7 @@ public class player17 implements ContestSubmission
 		ChartFrame frame = new ChartFrame("First", chart);
         frame.pack();
         frame.setVisible(true);
-		 
+
 	}
 	
 	private void addRandomsToPopulation(double randomsAdded) 
@@ -154,46 +154,25 @@ public class player17 implements ContestSubmission
 		}
 		return output/numberOfIndividuals;
 	}
-	
 	double computeIndividualVariance() //todo
 	{
-		double[] meanIndividual = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		double[] temp =  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		double output = 0;
 		double numberOfIndividuals = 0;
 		Iterator<Individual> iterator = population.iterator();
 		while(iterator.hasNext())
 		{
-			Individual ind = iterator.next();
-			for(int i = 0; i < 10; i++)
-			{
-				meanIndividual[i] += ind.genome[i];
-			}
+			output += iterator.next().fitness;
 			numberOfIndividuals++;
 		}
-		for(int i = 0; i < 10; i++) //get mean
-		{
-			meanIndividual[i] /= numberOfIndividuals;
-		}
-		
+		double mean = output/numberOfIndividuals; //get mean
+		output = 0;
 		iterator = population.iterator();
 		while(iterator.hasNext())
 		{
-			Individual ind = iterator.next();
-			for(int i = 0; i < 10; i++)
-			{
-				temp[i] += (meanIndividual[i]-ind.genome[i]) * (meanIndividual[i]-ind.genome[i]);
-			}
+			double fitness = iterator.next().fitness;
+			output += (mean-fitness) * (mean-fitness);
 		}
-		for(int i = 0; i < 10; i++)
-		{
-			temp[i] /= numberOfIndividuals;
-		}
-		double output = 0;
-		for(int i = 0; i < 10; i++)
-		{
-			output += temp[i];
-		}		
-		return output;
+		return output/numberOfIndividuals;
 	}
 	
 	void makeNewPopulation()

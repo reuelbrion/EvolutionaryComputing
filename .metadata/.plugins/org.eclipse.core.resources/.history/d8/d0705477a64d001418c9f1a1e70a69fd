@@ -90,8 +90,8 @@ public class player17 implements ContestSubmission
 			}
 			column++;
 			dataset.addSeries(series);
-			System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(19).fitness + " evals: " + evals + " individual vatriance: " + computeIndividualVariance());
-			if( computeIndividualVariance() < VARIANCE_TRESHOLD)
+			System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(19).fitness + " evals: " + evals + " fitness vatriance: " + computeIndividualVariance());
+			if(computeFitnessVariance() < VARIANCE_TRESHOLD)
 			{
 				addRandomsToPopulation(RANDOMS_ADDED);
 			}
@@ -113,7 +113,7 @@ public class player17 implements ContestSubmission
 		ChartFrame frame = new ChartFrame("First", chart);
         frame.pack();
         frame.setVisible(true);
-		 
+
 	}
 	
 	private void addRandomsToPopulation(double randomsAdded) 
@@ -193,7 +193,7 @@ public class player17 implements ContestSubmission
 		{
 			output += temp[i];
 		}		
-		return output;
+		return output/10;
 	}
 	
 	void makeNewPopulation()
