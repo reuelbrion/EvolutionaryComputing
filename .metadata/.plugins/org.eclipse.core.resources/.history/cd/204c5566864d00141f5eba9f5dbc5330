@@ -113,7 +113,6 @@ public class player17 implements ContestSubmission
 		ChartFrame frame = new ChartFrame("First", chart);
         frame.pack();
         frame.setVisible(true);
-
 	}
 	
 	private void addRandomsToPopulation(double randomsAdded) 
