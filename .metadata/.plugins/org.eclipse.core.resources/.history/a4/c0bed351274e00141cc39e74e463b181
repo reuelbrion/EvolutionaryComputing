@@ -23,8 +23,10 @@ public class player17 implements ContestSubmission
 	final static int NUMBER_OF_POPULATIONS = 10; //wordt nog niet gebruikt
 	final static int PARENTS_SURVIVE = 10; //number of parents that survive into the next generation
 	final static int NUMBER_OF_MUTATIONS = 1;
-	final static boolean ONLY_MUTANTS = false; //wel of niet alleen mutanten als kinderen toeveogen aan nieuwe gen
+	final static boolean ONLY_MUTANTS = true; //wel of niet alleen mutanten als kinderen toeveogen aan nieuwe gen
 	final static int RANDOM_MUTATION_CHANCE = 5; //procent kans dat een gen totaal random muteert
+	final static int RANDOMS_ADDED = 11; //aantal individuen dat random wordt vervangen bij te lage variance 
+	final static double VARIANCE_TRESHOLD = 5d; //waarde van variance in fitness waarbij individuen worden vervangen door randoms
 	
 	ArrayList<Individual> population;
 	private Random rnd_;
@@ -88,13 +90,17 @@ public class player17 implements ContestSubmission
 			}
 			column++;
 			dataset.addSeries(series);
-			System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(19).fitness + " evals: " + evals);
+			System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(19).fitness + " evals: " + evals + " individual vatriance: " + computeIndividualVariance());
+			if( computeIndividualVariance() < VARIANCE_TRESHOLD)
+			{
+				addRandomsToPopulation(RANDOMS_ADDED);
+			}
 			evals++;
 		}
 
 		//maak een plot op scherm, dit uitzetten bij inleveren
 		chart = ChartFactory.createScatterPlot(
-	            "Line Chart 1",       // chart title
+	            "Plot 1",       // chart title
 	            "Evals",                    // domain axis label
 	            "Fitness",                   // range axis label
 	            dataset,                   // data
@@ -109,6 +115,86 @@ public class player17 implements ContestSubmission
         frame.setVisible(true);
 	}
 	
+	private void addRandomsToPopulation() 
+	{
+		int initSize = population.size();
+		Random rand = new Random();
+		while (population.size() >= initSize-RANDOMS_ADDED)
+		{
+			int removePos = rand.nextInt(population.size());
+			population.remove(removePos);
+		}
+		while (population.size() < initSize)
+		{
+			Individual ind = new Individual();
+			ind.initializeRandom();
+			ind.fitness = (Double)evaluation_.evaluate(ind.genome);
+			addToPopulationSorted(ind, population);
+		}
+	}
+
+	double computeFitnessVariance()
+	{
+		double output = 0;
+		double numberOfIndividuals = 0;
+		Iterator<Individual> iterator = population.iterator();
+		while(iterator.hasNext())
+		{
+			output += iterator.next().fitness;
+			numberOfIndividuals++;
+		}
+		double mean = output/numberOfIndividuals; //get mean
+		output = 0;
+		iterator = population.iterator();
+		while(iterator.hasNext())
+		{
+			double fitness = iterator.next().fitness;
+			output += (mean-fitness) * (mean-fitness);
+		}
+		return output/numberOfIndividuals;
+	}
+	
+	double computeIndividualVariance() //todo
+	{
+		double[] meanIndividual = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		double[] temp =  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		double numberOfIndividuals = 0;
+		Iterator<Individual> iterator = population.iterator();
+		while(iterator.hasNext())
+		{
+			Individual ind = iterator.next();
+			for(int i = 0; i < 10; i++)
+			{
+				meanIndividual[i] += ind.genome[i];
+			}
+			numberOfIndividuals++;
+		}
+		for(int i = 0; i < 10; i++) //get mean
+		{
+			meanIndividual[i] /= numberOfIndividuals;
+		}
+		
+		iterator = population.iterator();
+		while(iterator.hasNext())
+		{
+			Individual ind = iterator.next();
+			for(int i = 0; i < 10; i++)
+			{
+				temp[i] += (meanIndividual[i]-ind.genome[i]) * (meanIndividual[i]-ind.genome[i]);
+			}
+		}
+		for(int i = 0; i < 10; i++)
+		{
+			temp[i] /= numberOfIndividuals;
+		}
+		double output = 0;
+		for(int i = 0; i < 10; i++)
+		{
+			output += temp[i];
+		}		
+		return output;
+	}
+	
 	void makeNewPopulation()
 	{
 		Random rand = new Random();
@@ -117,7 +203,6 @@ public class player17 implements ContestSubmission
 		//split pop in 2
 		while(tempPopulation1.size()<POPULATION_SIZE/2)
 		{
-			System.out.println("ik ben hier");
 			tempPopulation1.add(population.remove(rand.nextInt(population.size())));
 		}
 		while(tempPopulation2.size()<POPULATION_SIZE/2)
@@ -127,8 +212,8 @@ public class player17 implements ContestSubmission
 		//BATTLE!
 		while(tempPopulation1.size() > 0) 
 		{
-			Individual parent1 = tempPopulation1.get(rand.nextInt(tempPopulation1.size()));
-			Individual parent2 = tempPopulation2.get(rand.nextInt(tempPopulation1.size()));
+			Individual parent1 = tempPopulation1.remove(rand.nextInt(tempPopulation1.size()));
+			Individual parent2 = tempPopulation2.remove(rand.nextInt(tempPopulation2.size()));
 			if (parent1.fitness > parent2.fitness)
 			{
 				addToPopulationSorted(parent1, population);

@@ -23,7 +23,7 @@ public class player17 implements ContestSubmission
 	final static int NUMBER_OF_POPULATIONS = 10; //wordt nog niet gebruikt
 	final static int PARENTS_SURVIVE = 10; //number of parents that survive into the next generation
 	final static int NUMBER_OF_MUTATIONS = 1;
-	final static boolean ONLY_MUTANTS = false; //wel of niet alleen mutanten als kinderen toeveogen aan nieuwe gen
+	final static boolean ONLY_MUTANTS = true; //wel of niet alleen mutanten als kinderen toeveogen aan nieuwe gen
 	final static int RANDOM_MUTATION_CHANCE = 5; //procent kans dat een gen totaal random muteert
 	final static int RANDOMS_ADDED = 11; //aantal individuen dat random wordt vervangen bij te lage variance 
 	final static double VARIANCE_TRESHOLD = 5d; //waarde van variance in fitness waarbij individuen worden vervangen door randoms
@@ -93,14 +93,14 @@ public class player17 implements ContestSubmission
 			System.out.println("best fitness: " + population.get(0).fitness + " worst fitness:  " + population.get(19).fitness + " evals: " + evals + " individual vatriance: " + computeIndividualVariance());
 			if( computeIndividualVariance() < VARIANCE_TRESHOLD)
 			{
-				addRandomsToPopulation(RANDOMS_ADDED);
+				addRandomsToPopulation();
 			}
 			evals++;
 		}
 
 		//maak een plot op scherm, dit uitzetten bij inleveren
 		chart = ChartFactory.createScatterPlot(
-	            "Line Chart 1",       // chart title
+	            "Plot 1",       // chart title
 	            "Evals",                    // domain axis label
 	            "Fitness",                   // range axis label
 	            dataset,                   // data
@@ -113,10 +113,9 @@ public class player17 implements ContestSubmission
 		ChartFrame frame = new ChartFrame("First", chart);
         frame.pack();
         frame.setVisible(true);
-		 
 	}
 	
-	private void addRandomsToPopulation(double randomsAdded) 
+	private void addRandomsToPopulation() 
 	{
 		int initSize = population.size();
 		Random rand = new Random();
